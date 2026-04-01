@@ -8,10 +8,21 @@
     <version>1.0.0-SNAPSHOT</version>
     <packaging>pom</packaging>
 
+    <modules>
+        <module>shared</module>
+        <module>proto</module>
+        <module>services/account-service</module>
+        <module>services/transaction-service</module>
+        <module>services/analytics-service</module>
+        <module>services/notification-service</module>
+        <module>services/saga-orchestrator</module>
+    </modules>
+
     <properties>
         <java.version>17</java.version>
         <spring-boot.version>3.5.11</spring-boot.version>
         <maven.compiler.version>3.14.1</maven.compiler.version>
+        <grpc.version>1.60.0</grpc.version>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     </properties>
 
