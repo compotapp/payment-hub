@@ -1,9 +1,22 @@
 spring:
   application:
     name: transaction-service
+  datasource:
+    url: jdbc:postgresql://localhost:5433/transaction_db
+    username: transaction_user
+    password: transaction_pass
+    driver-class-name: org.postgresql.Driver
+  jpa:
+    hibernate:
+      ddl-auto: validate
+    open-in-view: false
 
 grpc:
   client:
     account-service:
       address: static://localhost:9090   # Адрес Account Service
       negotiation-type: plaintext        # Для локальной разработки без TLS
+
+notification:
+  service:
+    url: http://localhost:8083   # URL Notification Service
