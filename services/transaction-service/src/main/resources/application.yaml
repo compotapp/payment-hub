@@ -1,0 +1,9 @@
+spring:
+  application:
+    name: transaction-service
+
+grpc:
+  client:
+    account-service:
+      address: static://localhost:9090   # Адрес Account Service
+      negotiation-type: plaintext        # Для локальной разработки без TLS

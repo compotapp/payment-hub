@@ -1,0 +1,66 @@
+syntax = "proto3";
+
+//package com.paymenthub.account;
+
+option java_package = "com.pot.app.proto.account";
+option java_multiple_files = true;
+option java_outer_classname = "AccountServiceProto";
+
+// Сервис Account — управление счетами и резервированием средств
+service AccountService {
+  // Резервирование средств при создании платежа
+  rpc ReserveFunds (ReserveRequest) returns (ReserveResponse);
+
+  // Подтверждение списания (после успешного платежа)
+  rpc CommitFunds (CommitRequest) returns (CommitResponse);
+
+  // Отмена резервирования (при ошибке или откате)
+  rpc CancelReservation (CancelRequest) returns (CancelResponse);
+
+  // Получение баланса пользователя
+  rpc GetBalance (BalanceRequest) returns (BalanceResponse);
+}
+
+// --- Запросы и ответы ---
+
+message ReserveRequest {
+  string transaction_id = 1;   // Сквозной ID для идемпотентности
+  string user_id = 2;          // ID пользователя
+  int64 amount = 3;            // Сумма в копейках/центах (избегаем float)
+}
+
+message ReserveResponse {
+  bool success = 1;
+  string reservation_id = 2;   // ID резервирования (нужен для commit/cancel)
+  string message = 3;
+}
+
+message CommitRequest {
+  string transaction_id = 1;
+  string reservation_id = 2;
+}
+
+message CommitResponse {
+  bool success = 1;
+  string message = 2;
+}
+
+message CancelRequest {
+  string transaction_id = 1;
+  string reservation_id = 2;
+}
+
+message CancelResponse {
+  bool success = 1;
+  string message = 2;
+}
+
+message BalanceRequest {
+  string user_id = 1;
+}
+
+message BalanceResponse {
+  string user_id = 1;
+  int64 available_balance = 2;  // Доступный баланс
+  int64 reserved_balance = 3;    // Зарезервированный баланс
+}
