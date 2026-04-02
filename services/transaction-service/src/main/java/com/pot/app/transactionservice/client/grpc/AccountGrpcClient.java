@@ -1,4 +1,4 @@
-package com.pot.app.transactionservice.client;
+package com.pot.app.transactionservice.client.grpc;
 
 import net.devh.boot.grpc.client.inject.GrpcClient;
 import org.slf4j.Logger;

@@ -1,0 +1,12 @@
+spring:
+  application:
+    name: saga-orchestrator
+  datasource:
+    url: jdbc:postgresql://localhost:5435/orchestrator_db
+    username: orchestrator_user
+    password: orchestrator_pass
+    driver-class-name: org.postgresql.Driver
+  jpa:
+    hibernate:
+      ddl-auto: validate
+    open-in-view: false

@@ -24,8 +24,9 @@
         <maven.compiler.target>17</maven.compiler.target>
         <spring-boot.version>3.5.11</spring-boot.version>
         <maven.compiler.version>3.14.1</maven.compiler.version>
-        <grpc.version>1.68.2</grpc.version>
+        <grpc.version>1.63.0</grpc.version>
         <protobuf.version>3.25.5</protobuf.version>
+        <flyway.version>11.14.1</flyway.version>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     </properties>
 
@@ -39,12 +40,32 @@
                 <type>pom</type>
                 <scope>import</scope>
             </dependency>
+            <!-- grpc BOM -->
+            <dependency>
+                <groupId>io.grpc</groupId>
+                <artifactId>grpc-bom</artifactId>
+                <version>${grpc.version}</version>
+                <type>pom</type>
+                <scope>import</scope>
+            </dependency>
+            <!-- migration -->
+            <dependency>
+                <groupId>org.flywaydb</groupId>
+                <artifactId>flyway-core</artifactId>
+                <version>${flyway.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.flywaydb</groupId>
+                <artifactId>flyway-database-postgresql</artifactId>
+                <version>${flyway.version}</version>
+            </dependency>
         </dependencies>
     </dependencyManagement>
 
     <build>
         <pluginManagement>
             <plugins>
+                <!-- maven -->
                 <plugin>
                     <groupId>org.apache.maven.plugins</groupId>
                     <artifactId>maven-compiler-plugin</artifactId>
@@ -52,13 +73,29 @@
                     <configuration>
                         <source>${java.version}</source>
                         <target>${java.version}</target>
+                        <annotationProcessorPaths>
+                            <path>
+                                <groupId>org.projectlombok</groupId>
+                                <artifactId>lombok</artifactId>
+                            </path>
+                        </annotationProcessorPaths>
                     </configuration>
                 </plugin>
+                <!-- spring-boot -->
                 <plugin>
                     <groupId>org.springframework.boot</groupId>
                     <artifactId>spring-boot-maven-plugin</artifactId>
                     <version>${spring-boot.version}</version>
+                    <configuration>
+                        <excludes>
+                            <exclude>
+                                <groupId>org.projectlombok</groupId>
+                                <artifactId>lombok</artifactId>
+                            </exclude>
+                        </excludes>
+                    </configuration>
                 </plugin>
+                <!-- grpc -->
                 <plugin>
                     <groupId>org.xolstice.maven.plugins</groupId>
                     <artifactId>protobuf-maven-plugin</artifactId>
@@ -80,5 +117,4 @@
             </plugins>
         </pluginManagement>
     </build>
-
 </project>

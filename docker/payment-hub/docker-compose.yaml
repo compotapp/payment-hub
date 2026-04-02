@@ -1,0 +1,77 @@
+version: "3.8"
+
+services:
+  #Postgres
+  postgres-account:
+    image: "postgres:15.0"
+    container_name: "postgres-account"
+    ports:
+      - "5432:5432"
+    environment:
+      POSTGRES_DB: account_db
+      POSTGRES_USER: account_user
+      POSTGRES_PASSWORD: account_pass
+    volumes:
+      - account-data:/var/lib/postgresql/data
+    networks:
+      - payment-hub
+
+  postgres-transaction:
+    image: "postgres:15.0"
+    container_name: "postgres-transaction"
+    ports:
+      - "5433:5432"
+    environment:
+      POSTGRES_DB: transaction_db
+      POSTGRES_USER: transaction_user
+      POSTGRES_PASSWORD: transaction_pass
+    volumes:
+      - transaction-data:/var/lib/postgresql/data
+    networks:
+      - payment-hub
+
+  postgres-analytics:
+    image: "timescale/timescaledb:latest-pg15"
+    container_name: "postgres-analytics"
+    ports:
+      - "5434:5432"
+    environment:
+      POSTGRES_DB: analytics_db
+      POSTGRES_USER: analytics_user
+      POSTGRES_PASSWORD: analytics_pass
+    volumes:
+      - analytics-data:/var/lib/postgresql/data
+    networks:
+      - payment-hub
+
+  postgres-orchestrator:
+    image: "postgres:15"
+    container_name: "postgres-orchestrator"
+    ports:
+      - "5435:5432"
+    environment:
+      POSTGRES_DB: orchestrator_db
+      POSTGRES_USER: orchestrator_user
+      POSTGRES_PASSWORD: orchestrator_pass
+    volumes:
+      - orchestrator-data:/var/lib/postgresql/data
+    networks:
+      - payment-hub
+
+volumes:
+  account-data:
+    driver: local
+  transaction-data:
+    driver: local
+  analytics-data:
+    driver: local
+  orchestrator-data:
+    driver: local
+
+networks:
+  payment-hub:
+    driver: bridge
+
+# docker-compose -f docker/payment-hub/docker-compose.yaml up -d
+
+# добавить health check
