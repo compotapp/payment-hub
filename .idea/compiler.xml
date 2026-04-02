@@ -15,8 +15,5 @@
         <module name="notification-service" />
       </profile>
     </annotationProcessing>
-    <bytecodeTargetLevel>
-      <module name="untitled" target="17" />
-    </bytecodeTargetLevel>
   </component>
 </project>

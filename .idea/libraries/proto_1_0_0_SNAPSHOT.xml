@@ -1,0 +1,9 @@
+<component name="libraryTable">
+  <library name="proto-1.0.0-SNAPSHOT">
+    <CLASSES>
+      <root url="jar://$MAVEN_REPOSITORY$/com/pot/app/proto/1.0.0-SNAPSHOT/proto-1.0.0-SNAPSHOT.jar!/" />
+    </CLASSES>
+    <JAVADOC />
+    <SOURCES />
+  </library>
+</component>
