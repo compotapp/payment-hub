@@ -20,6 +20,13 @@
             <version>1.0.0-SNAPSHOT</version>
         </dependency>
 
+        <!-- shared -->
+        <dependency>
+            <groupId>com.pot.app</groupId>
+            <artifactId>shared</artifactId>
+            <version>1.0.0-SNAPSHOT</version>
+        </dependency>
+
         <!-- web -->
         <dependency>
             <groupId>org.springframework.boot</groupId>
@@ -31,6 +38,12 @@
             <groupId>net.devh</groupId>
             <artifactId>grpc-client-spring-boot-starter</artifactId>
             <version>3.1.0.RELEASE</version>
+        </dependency>
+
+        <!-- kafka -->
+        <dependency>
+            <groupId>org.springframework.kafka</groupId>
+            <artifactId>spring-kafka</artifactId>
         </dependency>
 
         <!-- database -->
