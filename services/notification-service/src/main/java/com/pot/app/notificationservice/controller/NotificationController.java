@@ -6,12 +6,14 @@ import com.pot.app.notificationservice.dto.NotificationStatusResponse;
 import com.pot.app.notificationservice.dto.PushRequest;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.time.Instant;
 import java.util.UUID;
 
 /**
@@ -28,7 +30,7 @@ import java.util.UUID;
 @RequiredArgsConstructor
 public class NotificationController {
 
-    private NotificationService notificationService; // Сервис с логикой
+    //private NotificationService notificationService; // Сервис с логикой
 
     /**
      * Отправка email уведомления.
@@ -38,7 +40,7 @@ public class NotificationController {
      */
     @PostMapping("/email")
     @Operation(summary = "Отправить email уведомление")
-    public ResponseEntity<NotificationResponse> sendEmail(@RequestBody EmailRequest request) {
+    public ResponseEntity<NotificationResponse> sendEmail(@Valid @RequestBody EmailRequest request) {
         log.info("REST POST /notifications/email: to={}, subject={}, transactionId={}",
                 request.to(), request.subject(), request.transactionId());
 
@@ -47,7 +49,7 @@ public class NotificationController {
 
         // Сохраняем в БД статус PENDING и отправляем в Kafka
         // (синхронно возвращаем ID, фактическая отправка асинхронна)
-        notificationService.queueEmail(notificationId, request);
+        //notificationService.queueEmail(notificationId, request);
 
         // Возвращаем 202 Accepted (запрос принят в обработку)
         return ResponseEntity
@@ -65,7 +67,7 @@ public class NotificationController {
                 request.userId(), request.title(), request.transactionId());
 
         String notificationId = UUID.randomUUID().toString();
-        notificationService.queuePush(notificationId, request);
+        //notificationService.queuePush(notificationId, request);
 
         return ResponseEntity
                 .status(HttpStatus.ACCEPTED)
@@ -80,12 +82,16 @@ public class NotificationController {
     public ResponseEntity<NotificationStatusResponse> getStatus(@PathVariable String notificationId) {
         log.info("REST GET /notifications/{}/status", notificationId);
 
-        NotificationStatus status = notificationService.getStatus(notificationId);
+        //NotificationStatus status = notificationService.getStatus(notificationId);
 
         return ResponseEntity.ok(new NotificationStatusResponse(
                 notificationId,
-                status.getState(),      // SENT, FAILED, PENDING
-                status.getDetails()
+                "SENT",
+                "SENT",
+                //status.getState(),      // SENT, FAILED, PENDING
+                //status.getDetails(),
+                Instant.now(),
+                Instant.now()
         ));
     }
 }
