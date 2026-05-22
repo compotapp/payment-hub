@@ -1,10 +1,10 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
   <component name="SqlDialectMappings">
-    <file url="file://$PROJECT_DIR$/.idea/queries/Query.sql" dialect="PostgreSQL" />
     <file url="file://$PROJECT_DIR$/.idea/queries/Query_1.sql" dialect="PostgreSQL" />
     <file url="file://$PROJECT_DIR$/.idea/queries/Query_2.sql" dialect="PostgreSQL" />
     <file url="file://$PROJECT_DIR$/.idea/queries/Query_3.sql" dialect="PostgreSQL" />
+    <file url="file://$PROJECT_DIR$/.idea/queries/account.sql" dialect="PostgreSQL" />
     <file url="file://$PROJECT_DIR$/services/account-service/src/main/resources/db/migration/V1__create_accounts_table.sql" dialect="GenericSQL" />
     <file url="file://$PROJECT_DIR$/services/account-service/src/main/resources/db/migration/V2__create_reservations_table.sql" dialect="PostgreSQL" />
     <file url="file://$PROJECT_DIR$/services/account-service/src/main/resources/migration/sources/V1__create_accounts_table.sql" dialect="GenericSQL" />

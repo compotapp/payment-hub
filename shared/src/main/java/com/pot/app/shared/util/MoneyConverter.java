@@ -1,4 +1,4 @@
-package com.pot.app.accountservice.util;
+package com.pot.app.shared.util;
 
 import java.math.BigDecimal;
 

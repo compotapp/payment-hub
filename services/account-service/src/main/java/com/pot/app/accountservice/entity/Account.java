@@ -18,7 +18,7 @@ import static java.lang.String.format;
 @Entity
 @NoArgsConstructor
 @AllArgsConstructor
-@Table(schema = "accounts")
+@Table(name = "accounts")
 public class Account {
 
     @Id
