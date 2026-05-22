@@ -21,8 +21,8 @@ import static com.pot.app.accountservice.dto.ReservationResult.success;
 import static com.pot.app.accountservice.entity.Reservation.ReservationStatus.CANCELLED;
 import static com.pot.app.accountservice.entity.Reservation.ReservationStatus.COMMITTED;
 import static com.pot.app.accountservice.entity.Reservation.active;
-import static com.pot.app.accountservice.util.MoneyConverter.toMajorUnit;
-import static com.pot.app.accountservice.util.MoneyConverter.toMinorUnit;
+import static com.pot.app.shared.util.MoneyConverter.toMajorUnit;
+import static com.pot.app.shared.util.MoneyConverter.toMinorUnit;
 import static java.lang.String.format;
 
 @Slf4j

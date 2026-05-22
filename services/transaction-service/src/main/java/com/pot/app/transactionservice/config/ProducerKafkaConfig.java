@@ -3,6 +3,7 @@ package com.pot.app.transactionservice.config;
 import com.pot.app.shared.dto.event.PaymentEvent;
 import org.apache.kafka.clients.admin.NewTopic;
 import org.apache.kafka.common.serialization.StringSerializer;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.kafka.config.TopicBuilder;
@@ -20,9 +21,12 @@ import static org.apache.kafka.clients.producer.ProducerConfig.*;
 @Configuration
 public class ProducerKafkaConfig {
 
+    @Value("${spring.kafka.bootstrap-servers}")
+    private String bootstrapServers;
+
     Map<String, Object> producerConfig() {
         Map<String, Object> config = new HashMap<>();
-        config.put(BOOTSTRAP_SERVERS_CONFIG, "localhost:9092,localhost:9094");
+        config.put(BOOTSTRAP_SERVERS_CONFIG, bootstrapServers);
         config.put(KEY_SERIALIZER_CLASS_CONFIG, StringSerializer.class);
         config.put(VALUE_SERIALIZER_CLASS_CONFIG, JsonSerializer.class);
         return config;

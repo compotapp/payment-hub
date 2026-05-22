@@ -1,8 +1,10 @@
+server:
+  port: 8082
 spring:
   application:
     name: transaction-service
   datasource:
-    url: jdbc:postgresql://localhost:5433/transaction_db
+    url: ${DB_URL:jdbc:postgresql://localhost:5433/transaction_db}
     username: transaction_user
     password: transaction_pass
     driver-class-name: org.postgresql.Driver
@@ -11,10 +13,13 @@ spring:
       ddl-auto: validate
     open-in-view: false
 
+  kafka:
+    bootstrap-servers: ${KAFKA_BOOTSTRAP_SERVERS:localhost:9092,localhost:9094}
+
 grpc:
   client:
     account-service:
-      address: static://localhost:9090   # Адрес Account Service
+      address: ${GRPC_CLIENT_URL:static://localhost:9090}   # Адрес Account Service
       negotiation-type: plaintext        # Для локальной разработки без TLS
 
 notification:

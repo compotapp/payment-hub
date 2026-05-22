@@ -6,7 +6,6 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.kafka.config.ConcurrentKafkaListenerContainerFactory;
 import org.springframework.kafka.core.ConsumerFactory;
 import org.springframework.kafka.core.DefaultKafkaConsumerFactory;
-import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.kafka.support.serializer.JsonDeserializer;
 
 import java.util.HashMap;
@@ -15,7 +14,7 @@ import java.util.Map;
 import static org.apache.kafka.clients.consumer.ConsumerConfig.*;
 
 @Configuration
-public class ConsumerKafkaConfig {
+public class KafkaConsumerConfig {
 
     @Bean
     ConsumerFactory<String, Object> consumerFactory() {
@@ -33,7 +32,7 @@ public class ConsumerKafkaConfig {
 
     @Bean
     ConcurrentKafkaListenerContainerFactory<String, Object> kafkaListenerContainerFactory(
-            ConsumerFactory<String, Object> consumerFactory, KafkaTemplate<String, Object> kafkaTemplate
+            ConsumerFactory<String, Object> consumerFactory
     ) {
         //DLT dead letter topic все сообщения которые не получилось обработать, отправлять в этот топик
 //        DefaultErrorHandler errorHandler = new DefaultErrorHandler(new DeadLetterPublishingRecoverer(kafkaTemplate),

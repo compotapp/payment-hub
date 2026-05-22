@@ -3,7 +3,9 @@
   <component name="ProjectModuleManager">
     <modules>
       <module fileurl="file://$PROJECT_DIR$/services/account-service/account-service.iml" filepath="$PROJECT_DIR$/services/account-service/account-service.iml" />
+      <module fileurl="file://$PROJECT_DIR$/services/analytics-service/analytics-service.iml" filepath="$PROJECT_DIR$/services/analytics-service/analytics-service.iml" />
       <module fileurl="file://$PROJECT_DIR$/payment-hub.iml" filepath="$PROJECT_DIR$/payment-hub.iml" />
+      <module fileurl="file://$PROJECT_DIR$/services/transaction-service/transaction-service.iml" filepath="$PROJECT_DIR$/services/transaction-service/transaction-service.iml" />
     </modules>
   </component>
 </project>
