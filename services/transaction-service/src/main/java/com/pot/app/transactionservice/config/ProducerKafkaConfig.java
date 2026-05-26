@@ -33,14 +33,25 @@ public class ProducerKafkaConfig {
     }
 
     @Bean
-    ProducerFactory<String, PaymentEvent> producerFactory() {
+    ProducerFactory<String, PaymentEvent> paymentEventProducerFactory() {
         return new DefaultKafkaProducerFactory<>(producerConfig());
     }
 
     @Bean
-    KafkaTemplate<String, PaymentEvent> kafkaTemplate() {
-        return new KafkaTemplate<>(producerFactory());
+    ProducerFactory<String, String> stringStringProducerFactory() {
+        return new DefaultKafkaProducerFactory<>(producerConfig());
     }
+
+    @Bean
+    KafkaTemplate<String, PaymentEvent> paymentEventKafkaTemplate() {
+        return new KafkaTemplate<>(paymentEventProducerFactory());
+    }
+
+    @Bean
+    KafkaTemplate<String, String> stringStringKafkaTemplate() {
+        return new KafkaTemplate<>(stringStringProducerFactory());
+    }
+
 
     @Bean
     NewTopic createTopic() {

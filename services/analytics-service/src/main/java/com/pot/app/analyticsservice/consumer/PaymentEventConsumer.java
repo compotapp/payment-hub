@@ -3,6 +3,7 @@ package com.pot.app.analyticsservice.consumer;
 import com.pot.app.analyticsservice.entity.RawEvent;
 import com.pot.app.analyticsservice.service.AnalyticsService;
 import com.pot.app.shared.dto.event.PaymentEvent;
+import com.pot.app.shared.util.JsonUtils;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.kafka.annotation.KafkaListener;
@@ -22,12 +23,14 @@ public class PaymentEventConsumer {
     private final AnalyticsService service;
 
     @KafkaListener(topics = PAYMENT_EVENTS)
-    public void consumePaymentEvent(PaymentEvent event, Acknowledgment ack) {
+    public void consumePaymentEvent(String message, Acknowledgment ack) {
         try {
-            if (event == null) {
+            if (message == null) {
                 log.error("Failed to parse base event");
                 return;
             }
+
+            PaymentEvent event = JsonUtils.fromJson(message, PaymentEvent.class);
 
             // Шаг 2: создаём RawEvent
             RawEvent entity = new RawEvent();
