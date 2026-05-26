@@ -1,9 +1,16 @@
 package com.pot.app.transactionservice.client.grpc;
 
+import com.pot.app.proto.account.AccountServiceGrpc.AccountServiceBlockingStub;
+import io.github.resilience4j.circuitbreaker.CircuitBreaker;
+import io.github.resilience4j.timelimiter.TimeLimiter;
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import net.devh.boot.grpc.client.inject.GrpcClient;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
+
+import java.util.function.Supplier;
+
+import static java.util.concurrent.TimeUnit.SECONDS;
 
 /**
  * gRPC клиент для вызова Account Service.
@@ -11,16 +18,19 @@ import org.springframework.stereotype.Component;
  * для AccountServiceGrpc.AccountServiceBlockingStub.
  */
 @Component
+@Slf4j
+@RequiredArgsConstructor
 public class AccountGrpcClient {
 
-    private static final Logger log = LoggerFactory.getLogger(AccountGrpcClient.class);
+    private final CircuitBreaker circuitBreaker;
+    private final TimeLimiter timeLimiter;
 
     /**
      * @GrpcClient("account-service") — название сервиса из конфигурации.
      * Будет создан автоматически с настройками из application.yml.
      */
     @GrpcClient("account-service")
-    private com.pot.app.proto.account.AccountServiceGrpc.AccountServiceBlockingStub accountStub;
+    private AccountServiceBlockingStub accountStub;
 
     /**
      * Резервирование средств.
@@ -31,24 +41,39 @@ public class AccountGrpcClient {
                 transactionId, userId, amount);
 
         try {
-            com.pot.app.proto.account.ReserveRequest request = com.pot.app.proto.account.ReserveRequest.newBuilder()
-                    .setTransactionId(transactionId)
-                    .setUserId(userId)
-                    .setAmount(amount)
-                    .build();
+            Supplier<String> grpcCall = () -> {
+                com.pot.app.proto.account.ReserveRequest request = com.pot.app.proto.account.ReserveRequest.newBuilder()
+                        .setTransactionId(transactionId)
+                        .setUserId(userId)
+                        .setAmount(amount)
+                        .build();
 
-            com.pot.app.proto.account.ReserveResponse response = accountStub.reserveFunds(request);
+                com.pot.app.proto.account.ReserveResponse response = accountStub
+                        .withDeadlineAfter(5, SECONDS)
+                        .reserveFunds(request);
 
-            if (response.getSuccess()) {
-                log.info("Reservation successful: reservationId={}", response.getReservationId());
-                return response.getReservationId();
-            } else {
-                log.warn("Reservation failed: {}", response.getMessage());
-                return null;
-            }
+                if (response.getSuccess()) {
+                    log.info("Reservation successful: reservationId={}", response.getReservationId());
+                    return response.getReservationId();
+                } else {
+                    log.warn("Reservation failed: {}", response.getMessage());
+                    throw new RuntimeException("Reservation failed: " + response.getMessage());
+                }
+            };
+
+            Supplier<String> withCircuitBreaker = CircuitBreaker.decorateSupplier(
+                    circuitBreaker,
+                    grpcCall
+            );
+
+            return withCircuitBreaker.get();
 
         } catch (Exception e) {
             log.error("gRPC call failed", e);
+            if (circuitBreaker.getState() == CircuitBreaker.State.OPEN) {
+                log.warn("Circuit Breaker is OPEN, failing fast");
+                throw new RuntimeException("Account Service is temporarily unavailable (Circuit Breaker OPEN)", e);
+            }
             throw new RuntimeException("Failed to call AccountService", e);
         }
     }
