@@ -1,8 +1,10 @@
 server:
   port: 8082
+
 spring:
   application:
     name: transaction-service
+
   datasource:
     url: ${DB_URL:jdbc:postgresql://localhost:5433/transaction_db}
     username: transaction_user
@@ -21,7 +23,48 @@ grpc:
     account-service:
       address: ${GRPC_CLIENT_URL:static://localhost:9090}   # Адрес Account Service
       negotiation-type: plaintext        # Для локальной разработки без TLS
+#      connect-timeout: 5s
+#      read-timeout: 2s   # <- это таймаут на ответ
+#      write-timeout: 2s
 
 notification:
   service:
     url: http://localhost:8083   # URL Notification Service
+    connection-timeout: 500ms
+    read-timeout: 1s
+
+resilience4j:
+  circuitbreaker:
+    instances:
+      accountServiceCircuitBreaker:
+        # Конфигурация Circuit Breaker
+        sliding-window-size: 10           # Анализируем последние 10 вызовов
+        failure-rate-threshold: 50        # При 50% ошибок → OPEN
+        wait-duration-in-open-state: 10s  # 10 секунд в OPEN, затем HALF_OPEN
+        permitted-number-of-calls-in-half-open-state: 3  # 3 тестовых вызова
+        automatic-transition-from-open-to-half-open-enabled: true
+        record-exceptions:
+          - io.grpc.StatusRuntimeException
+          - java.util.concurrent.TimeoutException
+          - java.io.IOException
+
+  retry:
+    instances:
+      notificationServiceRetry:
+        max-attempts: 3                    # 3 попытки
+        wait-duration: 100ms               # Начальная задержка
+        retry-exceptions:
+          - java.net.SocketTimeoutException
+          - java.io.IOException
+          - org.springframework.web.client.ResourceAccessException
+        exponential-backoff-multiplier: 2  # Умножаем задержку на 2
+        # 1-я попытка: 0ms
+        # 2-я попытка: 100ms
+        # 3-я попытка: 200ms (100 * 2)
+
+    timelimiter:
+      instances:
+        accountServiceTimeLimiter:
+          timeout-duration: 2s               # gRPC вызов не дольше 2 секунд
+        notificationServiceTimeLimiter:
+          timeout-duration: 1s               # REST вызов не дольше 1 секунды
