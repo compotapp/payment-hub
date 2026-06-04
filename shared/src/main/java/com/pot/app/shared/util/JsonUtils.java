@@ -1,11 +1,14 @@
 package com.pot.app.shared.util;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
+
+import java.util.Map;
 
 /**
  * Утилита для работы с JSON.
@@ -71,6 +74,15 @@ public final class JsonUtils {
             return objectMapper.readValue(json, clazz);
         } catch (JsonProcessingException e) {
             throw new RuntimeException("Failed to deserialize JSON: " + e.getMessage(), e);
+        }
+    }
+
+    public static Map<String, Object> toMap(Object object) {
+        try {
+            // Конвертируем объект напрямую в Map через TypeReference
+            return objectMapper.convertValue(object, new TypeReference<>() {});
+        } catch (Exception e) {
+            throw new RuntimeException("Ошибка конвертации объекта в Map", e);
         }
     }
 }

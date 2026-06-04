@@ -7,12 +7,12 @@ import org.hibernate.annotations.JdbcTypeCode;
 import org.hibernate.annotations.UpdateTimestamp;
 
 import java.math.BigDecimal;
-import java.time.LocalDateTime;
+import java.time.Instant;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
 
-import static com.pot.app.transactionservice.constans.TransactionStatus.PENDING_STATUS;
+import static com.pot.app.transactionservice.constans.TransactionStatus.PENDING;
 import static org.hibernate.type.SqlTypes.JSON;
 
 @Data
@@ -35,7 +35,7 @@ public class Transaction {
     private BigDecimal amount;
 
     @Column(name = "status", nullable = false, length = 32)
-    private String status = PENDING_STATUS;
+    private String status = PENDING;
 
     @Column(name = "type", nullable = false, length = 32)
     private String type;
@@ -46,9 +46,9 @@ public class Transaction {
 
     @CreationTimestamp
     @Column(name = "created_at", nullable = false, updatable = false)
-    private LocalDateTime createdAt;
+    private Instant createdAt;
 
     @UpdateTimestamp
     @Column(name = "updated_at", nullable = false)
-    private LocalDateTime updatedAt;
+    private Instant updatedAt;
 }

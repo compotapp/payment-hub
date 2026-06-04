@@ -1,4 +1,4 @@
-package com.pot.app.transactionservice.client.rest;
+package com.pot.app.transactionservice.integration.rest;
 
 import com.pot.app.transactionservice.dto.EmailRequest;
 import com.pot.app.transactionservice.dto.NotificationResponse;
@@ -23,7 +23,7 @@ public class NotificationRestClient {
     private final RestClient restClient;
     private final Retry retry;
 
-    public NotificationRestClient(@Value("${notification.service.url}") String notificationServiceUrl,
+    public NotificationRestClient(@Value("${integration.notification-service.url}") String notificationServiceUrl,
                                   Retry retry) {
         this.restClient = RestClient.builder()
                 .baseUrl(notificationServiceUrl)

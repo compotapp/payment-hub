@@ -2,7 +2,7 @@
 
 CREATE TABLE IF NOT EXISTS outbox
 (
-    id              UUID PRIMARY KEY,
+    id              UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     event_type      VARCHAR(64) NOT NULL,
     transaction_id  VARCHAR(64) NOT NULL,
     payload         TEXT        NOT NULL,

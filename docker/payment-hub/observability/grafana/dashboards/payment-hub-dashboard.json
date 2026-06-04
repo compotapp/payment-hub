@@ -1,0 +1,23 @@
+{
+  "title": "Payment Hub Dashboard",
+  "panels": [
+    {
+      "title": "Payment Success Rate",
+      "targets": [{
+        "expr": "sum(rate(payment_success_total[5m])) / (sum(rate(payment_success_total[5m])) + sum(rate(payment_failure_total[5m]))) * 100"
+      }]
+    },
+    {
+      "title": "Payment Processing Duration (p95)",
+      "targets": [{
+        "expr": "histogram_quantile(0.95, sum(rate(payment_processing_duration_bucket[5m])) by (le))"
+      }]
+    },
+    {
+      "title": "Errors by Service",
+      "targets": [{
+        "expr": "sum by (service) (rate(log_errors_total[5m]))"
+      }]
+    }
+  ]
+}

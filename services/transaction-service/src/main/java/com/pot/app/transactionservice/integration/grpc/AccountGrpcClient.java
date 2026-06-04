@@ -1,4 +1,4 @@
-package com.pot.app.transactionservice.client.grpc;
+package com.pot.app.transactionservice.integration.grpc;
 
 import com.pot.app.proto.account.AccountServiceGrpc.AccountServiceBlockingStub;
 import io.github.resilience4j.circuitbreaker.CircuitBreaker;

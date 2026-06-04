@@ -14,3 +14,13 @@ spring:
 grpc:
   server:
     port: 9090
+
+management:
+  endpoints:
+    web:
+      base-path: /actuator
+      exposure:
+        include: health, info, metrics, prometheus
+  metrics:
+    tags:
+      application: ${spring.application.name}

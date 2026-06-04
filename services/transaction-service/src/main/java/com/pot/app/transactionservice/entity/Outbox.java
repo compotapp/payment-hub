@@ -8,7 +8,7 @@ import org.hibernate.annotations.UpdateTimestamp;
 import java.time.LocalDateTime;
 import java.util.UUID;
 
-import static com.pot.app.transactionservice.constans.TransactionStatus.PENDING_STATUS;
+import static com.pot.app.transactionservice.constans.TransactionStatus.PENDING;
 
 @Data
 @Entity
@@ -30,7 +30,7 @@ public class Outbox {
     private String payload;  // JSON
 
     @Column(name = "status", nullable = false, length = 32)
-    private String status = PENDING_STATUS; // PENDING, SENT, FAILED
+    private String status = PENDING; // PENDING, SENT, FAILED
 
     @Column(name = "retryCount", nullable = false)
     private int retryCount = 0;
