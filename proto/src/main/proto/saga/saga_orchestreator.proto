@@ -1,0 +1,23 @@
+syntax = "proto3";
+
+option java_package = "com.pot.app.proto.saga";
+option java_multiple_files = true;
+option java_outer_classname = "SagaOrchestratorProto";
+
+service SagaOrchestrator {
+
+  rpc SagaPayment (PaymentGrpcRequest) returns (PaymentGrpcResponse);
+}
+
+message PaymentGrpcRequest {
+  string transaction_id = 1;
+  string user_id = 2;
+  int64 amount = 3;
+}
+
+message PaymentGrpcResponse {
+  string sagaId = 1;
+  string status = 2;
+  string message = 3;
+  bool success = 4;
+}

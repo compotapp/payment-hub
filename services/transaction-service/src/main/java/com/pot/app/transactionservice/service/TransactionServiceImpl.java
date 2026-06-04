@@ -9,7 +9,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.UUID;
 
-import static com.pot.app.transactionservice.constans.TransactionType.PAYMENT_TYPE;
+import static com.pot.app.transactionservice.constans.TransactionType.PAYMENT;
 
 @Service
 @RequiredArgsConstructor
@@ -24,7 +24,7 @@ public class TransactionServiceImpl implements TransactionService {
         transaction.setTransactionId(UUID.randomUUID().toString());
         transaction.setUserId(request.userId());
         transaction.setAmount(request.amount());
-        transaction.setType(PAYMENT_TYPE);
+        transaction.setType(PAYMENT);
         return repository.save(transaction);
     }
 

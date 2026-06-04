@@ -26,12 +26,13 @@ grpc:
 #      connect-timeout: 5s
 #      read-timeout: 2s   # <- это таймаут на ответ
 #      write-timeout: 2s
+    saga-orchestrator:
+      address: ${SAGA_GRPC_CLIENT_URL:static://localhost:9091}
+      negotiation-type: plaintext
 
-notification:
-  service:
+integration:
+  notification-service:
     url: http://localhost:8083   # URL Notification Service
-    connection-timeout: 500ms
-    read-timeout: 1s
 
 resilience4j:
   circuitbreaker:
@@ -48,6 +49,21 @@ resilience4j:
           - java.util.concurrent.TimeoutException
           - java.io.IOException
 
+      sagaGrpcService:
+        register-health-indicator: true # Регистрировать метрики состояния Circuit Breaker в Spring Boot Actuator /health
+        sliding-window-size: 10 # Размер скользящего окна (в количестве вызовов) для подсчёта процента ошибок
+        minimum-number-of-calls: 5 # Минимальное количество вызовов, необходимое для переключения в OPEN или закрытое состояние
+        permitted-number-of-calls-in-half-open-state: 3 # Сколько вызовов разрешено в полуоткрытом (HALF_OPEN) состоянии для проверки восстановления сервиса
+        automatic-transition-from-open-to-half-open-enabled: true # Автоматически переходить из OPEN в HALF_OPEN по истечении wait-duration (без ручного сброса)
+        wait-duration-in-open-state: 10s # Время, которое Circuit Breaker проведёт в OPEN состоянии, прежде чем перейти в HALF_OPEN
+        failure-rate-threshold: 50 # Порог процента неудачных вызовов, при превышении которого размыкается цепь (переход в OPEN) 50% ошибок от скользящего окна
+        event-consumer-buffer-size: 10 # Размер буфера для событий Circuit Breaker (можно получить через EventPublisher)
+        record-exceptions: # Какие исключения считать ошибкой и учитывать в статистике сбоев
+          - java.lang.RuntimeException          # любые непроверяемые исключения
+          - io.grpc.StatusRuntimeException      # ошибки gRPC (например, DEADLINE_EXCEEDED, UNAVAILABLE)
+        ignore-exceptions: # Какие исключения НЕ считать ошибкой (игнорировать при подсчёте failure rate)
+          - java.lang.IllegalArgumentException  # ошибки валидации — не повод размыкать цепь
+
   retry:
     instances:
       notificationServiceRetry:
@@ -62,9 +78,41 @@ resilience4j:
         # 2-я попытка: 100ms
         # 3-я попытка: 200ms (100 * 2)
 
-    timelimiter:
-      instances:
-        accountServiceTimeLimiter:
-          timeout-duration: 2s               # gRPC вызов не дольше 2 секунд
-        notificationServiceTimeLimiter:
-          timeout-duration: 1s               # REST вызов не дольше 1 секунды
+      sagaGrpcService:
+        max-attempts: 3 # Максимальное количество попыток (включая первую)
+        wait-duration: 1s # Базовая задержка между попытками (до применения exponential backoff)
+        retry-exceptions: # Исключения, при которых нужно делать повторную попытку
+          - java.lang.RuntimeException          # временные сбои на уровне приложения
+          - io.grpc.StatusRuntimeException      # сетевые/транспортные ошибки gRPC
+        ignore-exceptions: # Исключения, при которых повторная попытка НЕ выполняется (сразу проброс наверх)
+          - java.lang.IllegalArgumentException  # логическая ошибка запроса — повтор не поможет
+        exponential-backoff-multiplier: 2 # Множитель для экспоненциальной задержки (каждая следующая попытка: wait-duration * multiplier^(n-1))
+        # Пример: 1с, 2с, 4с (если max-attempts >= 3)
+
+        # Предикат для проверки исключения — если true, то повтор выполняется.
+        # Здесь указано, что повторять при ЛЮБОМ исключении (перекрывает настройки выше, если они не противоречат)
+        # retry-exception-predicate: io.github.resilience4j.retry.RetryPredicate.of(throwable -> true)
+
+  timelimiter:
+    instances:
+      sagaGrpcService:
+        timeout-duration: 5s # Максимальное время выполнения вызова (тайм-аут)
+        cancel-running-future: true # Отменять ли выполнение Future/задачи после истечения тайм-аута (попытка прервать поток)
+      accountServiceTimeLimiter:
+        timeout-duration: 2s               # gRPC вызов не дольше 2 секунд
+      notificationServiceTimeLimiter:
+        timeout-duration: 1s               # REST вызов не дольше 1 секунды
+
+management:
+  endpoints:
+    web:
+      base-path: /actuator
+      exposure:
+        include: health, info, metrics, prometheus
+  metrics:
+    tags:
+      application: ${spring.application.name}
+
+logging:
+  pattern:
+    console: '{"timestamp":"%d{ISO8601}","level":"%p","service":"${spring.application.name}","correlationId":"%X{correlationId}","message":"%m","exception":"%wEx"}%n'

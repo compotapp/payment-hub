@@ -4,6 +4,9 @@ docker system prune -a
 # Удаление всех томов
 docker volume prune
 
+# Удаление определенных томов
+docker volume rm payment-hub_grafana_data
+
 # Скачает образ не большого приложения запустит и выведет echo
 docker run busybox echo "Hello world"
 

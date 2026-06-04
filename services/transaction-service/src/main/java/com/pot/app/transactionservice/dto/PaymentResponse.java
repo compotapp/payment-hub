@@ -1,7 +1,8 @@
 package com.pot.app.transactionservice.dto;
 
 public record PaymentResponse(
-        String paymentId,
+        String transactionId,
+        String sagaId,
         String status,
         String message
 ) {

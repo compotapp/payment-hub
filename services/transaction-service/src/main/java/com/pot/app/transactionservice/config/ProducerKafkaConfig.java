@@ -29,6 +29,7 @@ public class ProducerKafkaConfig {
         config.put(BOOTSTRAP_SERVERS_CONFIG, bootstrapServers);
         config.put(KEY_SERIALIZER_CLASS_CONFIG, StringSerializer.class);
         config.put(VALUE_SERIALIZER_CLASS_CONFIG, JsonSerializer.class);
+        config.put(INTERCEPTOR_CLASSES_CONFIG, "io.opentelemetry.instrumentation.kafka.v2_6.TracingProducerInterceptor");
         return config;
     }
 
