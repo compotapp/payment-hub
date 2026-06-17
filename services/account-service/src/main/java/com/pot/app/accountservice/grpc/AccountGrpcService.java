@@ -12,11 +12,13 @@ import com.pot.app.proto.account.CommitRequest;
 import com.pot.app.proto.account.CommitResponse;
 import com.pot.app.proto.account.ReserveRequest;
 import com.pot.app.proto.account.ReserveResponse;
+import com.pot.app.shared.util.MoneyConverter;
 import io.grpc.stub.StreamObserver;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import net.devh.boot.grpc.server.service.GrpcService;
 
+import java.math.BigDecimal;
 import java.util.UUID;
 
 @Slf4j
@@ -35,7 +37,7 @@ public class AccountGrpcService extends AccountServiceGrpc.AccountServiceImplBas
     public void reserveFunds(ReserveRequest request, StreamObserver<ReserveResponse> responseObserver) {
         String transactionId = request.getTransactionId();
         String userId = request.getUserId();
-        long amount = request.getAmount();
+        BigDecimal amount = MoneyConverter.toMajorUnit(request.getAmount());
 
         log.info("gRPC reserveFunds: transactionId={}, userId={}, amount={}", transactionId, userId, amount);
 

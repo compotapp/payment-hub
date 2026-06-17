@@ -1,6 +1,7 @@
 spring:
   application:
     name: account-service
+
   datasource:
     url: ${DB_URL:jdbc:postgresql://localhost:5432/account_db}
     username: account_user
@@ -11,9 +12,12 @@ spring:
       ddl-auto: validate
     open-in-view: false
 
+  kafka:
+    bootstrap-servers: ${KAFKA_BOOTSTRAP_SERVERS:localhost:9092,localhost:9094}
+
 grpc:
   server:
-    port: 9090
+    port: 19090
 
 management:
   endpoints:

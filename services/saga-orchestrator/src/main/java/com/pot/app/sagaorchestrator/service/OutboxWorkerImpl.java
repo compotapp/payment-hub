@@ -40,13 +40,8 @@ public class OutboxWorkerImpl implements OutboxWorker {
         for (Outbox outbox : outboxes) {
             try {
                 SagaCommand command = outboxMapper.toCommand(outbox);
-                ProducerRecord<String, Object> record = new ProducerRecord<>(
-                        SAGA_COMMANDS,
-                        command.transactionId(),
-                        command
-                );
                 // Синхронная отправка с тайм-аутом
-                kafkaTemplate.send(record)
+                kafkaTemplate.send(SAGA_COMMANDS, command.transactionId(), command)
                         //тайм-аут приложения, ожидание текущего потока асинхронного ответа, producer продолжит попытки в фоне!
                         .get(2, MINUTES);  // throws ExecutionException
                 successful.add(outbox);

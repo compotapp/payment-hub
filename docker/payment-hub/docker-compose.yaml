@@ -30,6 +30,34 @@ services:
     networks:
       - payment-hub
 
+  postgres-transaction-shard0:
+    image: "postgres:15.0"
+    container_name: "postgres-transaction-shard0"
+    ports:
+      - "15432:5432"
+    environment:
+      POSTGRES_DB: transaction_db
+      POSTGRES_USER: transaction_user
+      POSTGRES_PASSWORD: transaction_pass
+    volumes:
+      - transaction-shard0-data:/var/lib/postgresql/data
+    networks:
+      - payment-hub
+
+  postgres-transaction-shard1:
+    image: "postgres:15.0"
+    container_name: "postgres-transaction-shard1"
+    ports:
+      - "15433:5432"
+    environment:
+      POSTGRES_DB: transaction_db
+      POSTGRES_USER: transaction_user
+      POSTGRES_PASSWORD: transaction_pass
+    volumes:
+      - transaction-shard1-data:/var/lib/postgresql/data
+    networks:
+      - payment-hub
+
   postgres-analytics:
     image: "timescale/timescaledb:latest-pg15"
     container_name: "postgres-analytics"
@@ -123,17 +151,55 @@ services:
       - payment-hub
 
   #services
+  saga-orchestrator:
+    container_name: saga-orchestrator
+    image: compotapp/hub-saga-orchestrator:1.0.0-SNAPSHOT
+    ports:
+      - "8084:8084"
+      - "19091:9091"
+    environment:
+      - DB_URL=jdbc:postgresql://postgres-orchestrator:5432/orchestrator_db
+      - KAFKA_BOOTSTRAP_SERVERS=server-1:9090,server-2:9090
+      - JAVA_TOOL_OPTIONS=-javaagent:/otel/opentelemetry-javaagent.jar
+      - OTEL_SERVICE_NAME=saga-orchestrator
+      - OTEL_EXPORTER_OTLP_ENDPOINT=http://jaeger:4318
+      - OTEL_EXPORTER_OTLP_PROTOCOL=http/protobuf
+      - OTEL_TRACES_EXPORTER=otlp
+      - OTEL_METRICS_EXPORTER=none
+      - OTEL_LOGS_EXPORTER=none
+    volumes:
+      - ./observability/opentelemetry/opentelemetry-javaagent.jar:/otel/opentelemetry-javaagent.jar
+    depends_on:
+      - postgres-orchestrator
+    networks:
+      - payment-hub
+
   transaction-service:
     container_name: transaction-service
     image: compotapp/hub-transaction-service:1.0.0-SNAPSHOT
     ports:
       - "8082:8082"
+      - "9010:9010"
     environment:
       - DB_URL=jdbc:postgresql://postgres-transaction:5432/transaction_db
       - KAFKA_BOOTSTRAP_SERVERS=server-1:9090,server-2:9090
-      - grpc.client.account-service.address=static://account-service:19090
-      - grpc.client.account-service.negotiation-type=plaintext
+#      - grpc.client.account-service.address=static://account-service:19090
+#      - grpc.client.account-service.negotiation-type=plaintext
+      - grpc.client.saga-orchestrator.address=static://saga-orchestrator:9091
+      - grpc.client.saga-orchestrator.negotiation-type=plaintext
+      - JAVA_TOOL_OPTIONS=-javaagent:/otel/opentelemetry-javaagent.jar
+      - OTEL_SERVICE_NAME=transaction-service
+      - OTEL_EXPORTER_OTLP_ENDPOINT=http://jaeger:4318
+      - OTEL_EXPORTER_OTLP_PROTOCOL=http/protobuf
+      - OTEL_TRACES_EXPORTER=otlp
+      - OTEL_METRICS_EXPORTER=none
+      - OTEL_LOGS_EXPORTER=none
+      - OTEL_PROPAGATORS=tracecontext,baggage
+      - JAVA_TOOL_OPTIONS=-Dcom.sun.management.jmxremote -Dcom.sun.management.jmxremote.port=9010 -Dcom.sun.management.jmxremote.rmi.port=9010 -Dcom.sun.management.jmxremote.local.only=false -Dcom.sun.management.jmxremote.authenticate=false -Dcom.sun.management.jmxremote.ssl=false -Djava.rmi.server.hostname=localhost
+    volumes:
+      - ./observability/opentelemetry/opentelemetry-javaagent.jar:/otel/opentelemetry-javaagent.jar
     depends_on:
+      - saga-orchestrator
       - postgres-transaction
       - kafka-1
       - kafka-2
@@ -149,6 +215,7 @@ services:
       - "19090:9090"
     environment:
       - DB_URL=jdbc:postgresql://postgres-account:5432/account_db
+      - KAFKA_BOOTSTRAP_SERVERS=server-1:9090,server-2:9090
     depends_on:
       - postgres-account
     networks:
@@ -232,10 +299,26 @@ services:
     networks:
       - payment-hub
 
+  jaeger:
+    image: jaegertracing/all-in-one:latest
+    container_name: jaeger
+    ports:
+      - "16686:16686"   # UI
+      - "4317:4317"     # OTLP gRPC
+      - "4318:4318"     # OTLP HTTP
+    environment:
+      - COLLECTOR_OTLP_ENABLED=true
+    networks:
+      - payment-hub
+
 volumes:
   account-data:
     driver: local
   transaction-data:
+    driver: local
+  transaction-shard0-data:
+    driver: local
+  transaction-shard1-data:
     driver: local
   analytics-data:
     driver: local

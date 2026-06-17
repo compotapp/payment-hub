@@ -1,0 +1,12 @@
+com:
+  pot:
+    app:
+      datasource:
+        shard0:
+          url: ${DB_URL_SHARD0:jdbc:postgresql://localhost:5433/transaction_db}
+          username: transaction_user
+          password: transaction_pass
+        shard1:
+          url: ${DB_URL_SHARD1:jdbc:postgresql://localhost:5434/transaction_db}
+          username: transaction_user
+          password: transaction_pass

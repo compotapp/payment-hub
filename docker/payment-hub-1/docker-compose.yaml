@@ -1,0 +1,41 @@
+version: "3.8"
+
+services:
+  #Postgres
+  postgres-transaction-shard0:
+    image: "postgres:15.0"
+    container_name: "postgres-transaction-shard0"
+    ports:
+      - "5433:5432"
+    environment:
+      POSTGRES_DB: transaction_db
+      POSTGRES_USER: transaction_user
+      POSTGRES_PASSWORD: transaction_pass
+    volumes:
+      - transaction-shard0-data:/var/lib/postgresql/data
+    networks:
+        - payment-hub
+
+  postgres-transaction-shard1:
+    image: "postgres:15.0"
+    container_name: "postgres-transaction-shard1"
+    ports:
+      - "5434:5432"
+    environment:
+      POSTGRES_DB: transaction_db
+      POSTGRES_USER: transaction_user
+      POSTGRES_PASSWORD: transaction_pass
+    volumes:
+      - transaction-shard1-data:/var/lib/postgresql/data
+    networks:
+      - payment-hub
+
+volumes:
+  transaction-shard0-data:
+    driver: local
+  transaction-shard1-data:
+    driver: local
+
+networks:
+  payment-hub:
+    driver: bridge

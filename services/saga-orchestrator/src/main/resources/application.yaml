@@ -6,7 +6,7 @@ spring:
     name: saga-orchestrator
 
   datasource:
-    url: jdbc:postgresql://localhost:5435/orchestrator_db
+    url: ${DB_URL:jdbc:postgresql://localhost:5435/orchestrator_db}
     username: orchestrator_user
     password: orchestrator_pass
     driver-class-name: org.postgresql.Driver

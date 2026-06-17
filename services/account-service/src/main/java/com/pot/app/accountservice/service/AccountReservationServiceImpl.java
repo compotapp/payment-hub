@@ -37,7 +37,7 @@ public class AccountReservationServiceImpl implements AccountReservationService 
 
     @Override
     @Transactional
-    public ReservationResult reserve(String transactionId, String userId, long amount) {
+    public ReservationResult reserve(String transactionId, String userId, BigDecimal amount) {
         return reservationService.findByTransactionId(transactionId)
                 .map(this::requireActiveAndGetResult)
                 .orElseGet(() -> createReservation(transactionId, userId, amount));
@@ -108,13 +108,12 @@ public class AccountReservationServiceImpl implements AccountReservationService 
         );
     }
 
-    private ReservationResult createReservation(String transactionId, String userId, long amount) {
+    private ReservationResult createReservation(String transactionId, String userId, BigDecimal amount) {
         return accountService.findByUserId(userId)
                 .map(account -> {
-                    BigDecimal majorAmount = toMajorUnit(amount);
-                    account.reserve(majorAmount);
+                    account.reserve(amount);
                     account = reserveFromAccount(account);
-                    Reservation reservation = reservationService.save(active(transactionId, account, majorAmount));
+                    Reservation reservation = reservationService.save(active(transactionId, account, amount));
                     return success(reservation.getId(), format("Transaction id: %s created", transactionId));
                 })
                 .orElseThrow(() -> new AccountNotFoundException(format("User id: %s not found", userId)));
